@@ -1,6 +1,6 @@
 require 'producer'
 
-class App < Sinatra::Base
+class Api < Sinatra::Base
   enable :logging
 
   def initialize(app = nil, params = {})
