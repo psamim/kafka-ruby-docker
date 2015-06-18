@@ -5,5 +5,5 @@ require 'rubygems'
 require 'bundler'
 require 'logger'
 Bundler.require
-require 'app'
-run App
+require 'units/api'
+run Api
