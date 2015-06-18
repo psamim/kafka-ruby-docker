@@ -1,0 +1,23 @@
+ruby:
+  # build: .
+  image: kafka-mq
+  volumes:
+    - .:/usr/src/app
+  ports:
+    - "8080:4567"
+  # links:
+  #   - kafka
+# zookeeper:
+#   image: wurstmeister/zookeeper
+#   ports:
+#     - "2181"
+# kafka:
+#   image: sumanyu/kafka-docker:0.8.1
+#   ports:
+#     - "9092"
+  # links:
+  #   - zookeeper:zk
+  # environment:
+  #   KAFKA_ADVERTISED_HOST_NAME: 192.168.1.6
+  # volumes:
+    # - /var/run/docker.sock:/var/run/docker.sock
