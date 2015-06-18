@@ -3,7 +3,7 @@ require 'config'
 
 class Producer
   def initialize(topic)
-    @producer = Poseidon::Producer.new(["#{Config::SERVER}:#{Config::PORT}"], Config::PRO_ID)
+    @producer = Poseidon::Producer.new(["#{Config::SERVER}:#{Config::PORT}"], Config::PRO_ID, :type => :sync)
     @topic = topic
   end
 
