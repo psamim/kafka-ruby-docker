@@ -1,13 +1,9 @@
-require 'poseidon_cluster'
+require 'poseidon'
 require 'config'
 
 class Consumer
   def initialize(topic, id)
-    @consumer = Poseidon::ConsumerGroup.new(
-      id, # Group name
-      ["#{Config::KAFKA_HOST}:#{Config::KAFKA_PORT}"],
-      ["#{Config::ZK_HOST}:#{Config::ZK_PORT}"],
-      topic) # Topic name
+    @consumer = Poseidon::PartitionConsumer.new(id, Config::KAFKA_HOST, Config::KAFKA_PORT, topic, 1, :earliest_offset)
     @topic = topic
     @id = id
   end
@@ -15,9 +11,10 @@ class Consumer
   def listen
     loop do
       begin
-        @consumer.fetch_loop do |partition, bulk|
-          bulk.each do |m|
-            puts "ConsumerID #{@id}: Fetched '#{m.value}' at #{m.offset} from #{partition}"
+        loop do
+          messages = @consumer.fetch
+          messages.each do |m|
+            puts "ConsumerID #{@id}: Fetched '#{m.value.slice(0,8)}...' at #{m.offset}"
             yield(m)
           end
         end
