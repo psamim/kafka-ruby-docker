@@ -1,0 +1,48 @@
+* Introduction
+This application is a demo for using Apache Kafka for message passing in Ruby programming language. 
+The whole environment and application is packaged into Docker containers.
+* Requirements
+- docker
+- docker-compose
+* Installation
+#+BEGIN_SRC sh
+$ docker-compose up
+#+END_SRC
+* Description
+When the app starts it consists of four separate units, besides Zookeeper and Kafka. Each unit is a 
+separate process. These processes do not need to be on the same machine. These units are:
+1. API
+2. Processor
+3. Subscriber One
+4. Subscriber Two
+
+The main /API/ is listening on port 8080 of the host OS, it accepts requests via HTTP requests. We can
+send new requests using this =curl= command. This command requests the weather of the sol 1 in Mars. Sol in Mars is the equivalent of day in Earth.
+
+#+BEGIN_SRC sh
+$ curl -X GET http://localhost:8080/sol/1
+#+END_SRC
+
+Then the /API/ puts the requests in a queue in Kafka as messages, the requests queue.
+The /processor/ unit is polling the requests queue. It processes each message and 
+retrieves the sol weather from the Mars Atmospheric Aggregation System [[http://marsweather.ingenology.com][MAAS]]. After getting the
+weather it puts the result into another Kafka topic as messages.
+
+Then there are units called /subscriber/ units, which are watching the results topic and
+polling the messages. When new results are arrived into the topic, they pick it up and 
+display the sol weather.
+* Technical Details
+The whole application is in Ruby programming language. It uses =Sinatra= and =Rack= for serving the API.
+For communicating to Kafka, it uses the =Poseidon= gem. Kafka consumers and producers are in the =kafka= directory.
+
+The four unit processes are described in the file =Procfile= and are managed by =foreman= to run as daemons. The units are in the
+=units= directory.
+* Docker Images
+The application uses three docker images, Kakfa, Zookeeper and Ruby. Zookeeper is needed as 
+Kafka uses Zookeeper to manage clusters and its nodes. The Ruby image is the main image
+for our application which is built by the provided =Dockerfile=. These images are in the public Docker hub registry
+and are downloaded and built automatically by the above command on the first time.
+
+These images are configured and run using =docker-compose=. The configuration is in the =docker-compose.yml= file.
+The main ports of Zookeeper and Kafka are exposed to the host OS and containers are linked. The application is accessible
+on port 8080 from the host OS.
