@@ -55,6 +55,7 @@ For communicating to Kafka, it uses the =Poseidon= gem. Kafka consumers and prod
 The four unit processes are described in the file =Procfile= and are managed by =foreman= to run as daemons. The units are in the
 =units= directory.
 
+# * Kafka Details
 * Docker Images
 The application uses three docker images, Kakfa, Zookeeper and Ruby. Zookeeper is needed as 
 Kafka uses Zookeeper to manage clusters and its nodes. The Ruby image is the main image
@@ -64,3 +65,10 @@ and are downloaded and built automatically by the above command on the first tim
 These images are configured and run using =docker-compose=. The configuration is in the =docker-compose.yml= file.
 The main ports of Zookeeper and Kafka are exposed to the host OS and containers are linked. The application is accessible
 on port 8080 from the host OS.
+* Issues
+When running the app for the second time, first stop and remove the containers using below command, then start normally as above. Otherwise Kafka and Zookeeper fail to communicate.
+
+#+BEGIN_SRC sh
+$ docker-compose stop
+$ docker-compose rm
+#+END_SRC
