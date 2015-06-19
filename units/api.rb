@@ -1,4 +1,4 @@
-require 'producer'
+require 'kafka/producer'
 
 class Api < Sinatra::Base
   enable :logging
@@ -13,6 +13,7 @@ class Api < Sinatra::Base
   end
 
   get '/sol/:sol' do
+    logger.info "Sending sol #{params['sol']} into the queue."
     @producer.send params['sol']
     "Request was put into queue for sol #{params['sol']}!"
   end
