@@ -1,20 +1,25 @@
-require 'poseidon'
+require 'poseidon_cluster'
 require 'config'
 
 class Consumer
-  def initialize(topic)
-    @consumer = Poseidon::PartitionConsumer.new(Config::CONS_ID, Config::SERVER, Config::PORT, topic, 0, :earliest_offset)
+  def initialize(topic, id)
+    @consumer = Poseidon::ConsumerGroup.new(
+      id, # Group name
+      ["#{Config::KAFKA_HOST}:#{Config::KAFKA_PORT}"],
+      ["#{Config::ZK_HOST}:#{Config::ZK_PORT}"],
+      topic) # Topic name
     @topic = topic
+    @id = id
   end
 
   def listen
     loop do
       begin
-        messages = @consumer.fetch
-        messages.each do |m|
-          puts m.value
-          puts m.offset
-          yield(m)
+        @consumer.fetch_loop do |partition, bulk|
+          bulk.each do |m|
+            puts "ConsumerID #{@id}: Fetched '#{m.value}' at #{m.offset} from #{partition}"
+            yield(m)
+          end
         end
       rescue Exception => e
         puts e.message

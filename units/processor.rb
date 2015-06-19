@@ -5,20 +5,22 @@ require 'config'
 require 'helper/string'
 
 class Processor
-  def initialize
-    begin
-      connect
-      puts 'Processor connected.'
-    rescue Exception => e
-      puts e.message
-      puts "Trying in 5 seconds"
-      sleep 5
+  PROCESSOR_ID = 'processor'
+
+    def initialize
+      begin
+        connect
+        puts 'Processor connected.'
+      rescue Exception => e
+        puts e.message
+        puts "Trying in 5 seconds"
+        sleep 5
+      end
     end
-  end
 
   def connect
-    @consumer = Consumer.new Config::REQUESTS_QUEUE
-    @producer = Producer.new Config::SOL_TOPIC
+    @consumer = Consumer.new Config::REQUESTS_QUEUE, PROCESSOR_ID
+    @producer = Producer.new Config::SOL_TOPIC, PROCESSOR_ID
   end
 
   def listen

@@ -2,11 +2,12 @@ require 'kafka/producer'
 
 class Api < Sinatra::Base
   enable :logging
+  API_ID = 'api'
 
-  def initialize(app = nil, params = {})
-    super(app)
-    @producer = Producer.new Config::REQUESTS_QUEUE
-  end
+    def initialize(app = nil, params = {})
+      super(app)
+      @producer = Producer.new Config::REQUESTS_QUEUE, API_ID
+    end
 
   get '/' do
     'Hello from docker!'

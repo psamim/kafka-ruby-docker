@@ -15,7 +15,7 @@ class Subscriber
   end
 
   def connect
-    @consumer = Consumer.new Config::SOL_TOPIC
+    @consumer = Consumer.new Config::SOL_TOPIC, "subscriber-#{@id}"
   end
 
   def listen
