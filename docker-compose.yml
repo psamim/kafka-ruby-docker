@@ -1,6 +1,5 @@
 ruby:
-  # build: .
-  image: kafka-mq
+  build: .
   volumes:
     - .:/usr/src/app
   ports:
