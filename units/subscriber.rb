@@ -28,7 +28,7 @@ class Subscriber
       puts "*RESULT*  Maximum Temprature: #{r['max_temp']}"
       puts "*RESULT*  Pressure: #{r['pressure']}"
       puts "*RESULT*  Sunrise: #{r['sunrise']}"
-      puts "*RESULT*  Sunrise: #{r['sunset']}"
+      puts "*RESULT*  Sunset: #{r['sunset']}"
     end
   end
 end
