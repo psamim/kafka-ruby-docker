@@ -55,7 +55,28 @@ For communicating to Kafka, it uses the =Poseidon= gem. Kafka consumers and prod
 The four unit processes are described in the file =Procfile= and are managed by =foreman= to run as daemons. The units are in the
 =units= directory.
 
-# * Kafka Details
+* Kafka Details, Topics and Queues
+
+Kafka does not hold extra meta-data about consumers of messages. It just keeps all messages of a topic in a log and
+assign an offset to each message. It is the responsibility of the clients to know and keep the offset. They can
+request any offset they like and start consuming. This has made Kafka very flexible.;
+
+These log are called partitions. Each topic can have one or many partitions. Clients also can select the
+partition they are interested in. Each message of a topic go into one partition. Kafka ensures that all messages
+with the same key will end in the same partition.
+
+If we want to have a traditional queue to balance the messages between the clients, we can assign clients to 
+topics. Each client will consume one partition. Therefore when messages are divided between partitions, they are
+actually being divided between clients. This way each message will be consumed once and by one client.
+
+If we want to have a topic and multiple clients subscribed to that, we can use consumer groups. Kafka will send messages to each consumer group once. So if each client has a different consumer group, a message is consumed multiple times. In another way we can use one consumer group but tell the clients to consume one partition and keep the offsets 
+themselves, and Kafka does not care who has consumed the message or if it is consumed or not.
+
+In this application I produce messages to one partition of one topic and tell consumers to
+consume that partition but keep the offsets themselves. If I had more than one processor unit, I had
+to use consumer groups and assign a different partition to each processor. This way requests would be balanced between the clients and a request would be
+processed only once.
+
 * Docker Images
 The application uses three docker images, Kakfa, Zookeeper and Ruby. Zookeeper is needed as 
 Kafka uses Zookeeper to manage clusters and its nodes. The Ruby image is the main image
