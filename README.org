@@ -59,7 +59,7 @@ The four unit processes are described in the file =Procfile= and are managed by 
 
 Kafka does not hold extra meta-data about consumers of messages. It just keeps all messages of a topic in a log and
 assign an offset to each message. It is the responsibility of the clients to know and keep the offset. They can
-request any offset they like and start consuming. This has made Kafka very flexible.;
+request any offset they like and start consuming. This has made Kafka very flexible.
 
 These log are called partitions. Each topic can have one or many partitions. Clients also can select the
 partition they are interested in. Each message of a topic go into one partition. Kafka ensures that all messages
