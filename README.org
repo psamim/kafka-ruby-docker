@@ -14,9 +14,10 @@ The whole environment and application is packaged into Docker containers.
 $ docker-compose up
 #+END_SRC
 
-This may take a long time as it downloads the Kafka, Zookeeper and Ruby images and builds the application.
+This may take a long time as it downloads Kafka, Zookeeper and Ruby images and builds the application.
+
 * Description
-When the app starts it consists of four separate units, besides Zookeeper and Kafka. Each unit is a 
+When the app starts, it consists of four separate units, besides Zookeeper and Kafka. Each unit is a 
 separate process. These processes do not need to be on the same machine. These units are:
 1. API
 2. Processor
@@ -24,36 +25,35 @@ separate process. These processes do not need to be on the same machine. These u
 4. Subscriber Two
 
 The main /API/ is listening on port 8080 of the host OS, it accepts requests via HTTP. One can
-send new requests using this =curl= command below which command requests the weather of the sol 1 in Mars. Sol in Mars is the equivalent of day in Earth.
+send new requests using this =curl= command below which requests the weather of the sol 1 in Mars. Sol in Mars is the equivalent of day in Earth.
 
 #+BEGIN_SRC sh
 $ curl -X GET http://localhost:8080/sol/1
 #+END_SRC
 
-Then the /API/ puts the requests in a queue in Kafka as messages, the requests queue.
-The /processor/ unit is polling the requests queue. It processes each message and 
+Then the /API/ unit puts the requests in a queue in Kafka as messages, the requests queue.
+The /processor/ unit is consuming the requests queue. It processes each message and 
 retrieves the sol weather from the Mars Atmospheric Aggregation System [[http://marsweather.ingenology.com][MAAS]]. After getting the
 weather it puts the result into another Kafka topic as messages.
 
-Then there are /subscriber/ units, which are watching the results topic and
-polling the messages. When new results are arrived into the topic, they pick it up and 
+Then there are two /subscriber/ units, which are polling the results topic and
+consuming the messages. When new results are arrived into the topic, they pick it up and 
 display the sol weather.
 
-These steps and the units output are displayed in the application log. A sample output is shown below.
+These steps and the units' outputs are displayed in the application log. A sample output is shown below.
 
 [[./screenshot.png]]
 
 The first column says that logs are from the Ruby container. The second column shows
-the name of the process. The API has received the HTTP request and put it in the queue. The processor
-has picked it up and has got the weather. Then it has sent the result into the topic. Each subscriber 
-has received the massage and is showing the weather.
+the name of the process (or unit). The API unit has received the HTTP request and puts it in the queue. The processor
+unit has picked it up and has gotten the weather. Then it has put the sol wather results into the topic. Each subscriber unit (Subscriber1 and Subscriber2) has received the massage and they are displaying the weather.
 
 * Technical Details
 The whole application is in Ruby programming language. It uses =Sinatra= and =Rack= for serving the API.
 For communicating to Kafka, it uses the =Poseidon= gem. Kafka consumers and producers are in the =kafka= directory.
 
 The four unit processes are described in the file =Procfile= and are managed by =foreman= to run as daemons. The units are in the
-=units= directory.
+=units= directory. Eache line in the =Procfile= describes one process of the application.
 
 * Kafka Details, Topics and Queues
 
@@ -67,15 +67,14 @@ with the same key will end in the same partition.
 
 If we want to have a traditional queue to balance the messages between the clients, we can assign clients to 
 topics. Each client will consume one partition. Therefore when messages are divided between partitions, they are
-actually being divided between clients. This way each message will be consumed once and by one client.
+actually being divided between clients. This way each message will be consumed once and only by one client.
 
 If we want to have a topic and multiple clients subscribed to that, we can use consumer groups. Kafka will send messages to each consumer group once. So if each client has a different consumer group, a message is consumed multiple times. In another way we can use one consumer group but tell the clients to consume one partition and keep the offsets 
 themselves, and Kafka does not care who has consumed the message or if it is consumed or not.
 
-In this application I produce messages to one partition of one topic and tell consumers to
+In this application I produce messages to one partition of one topic with same keys, and tell consumers to
 consume that partition but keep the offsets themselves. If I had more than one processor unit, I had
-to use consumer groups and assign a different partition to each processor. This way requests would be balanced between the clients and a request would be
-processed only once.
+to use consumer groups and assign a different partition to each processor. This way requests would be balanced between the processors and a request would be processed only once.
 
 * Docker Images
 The application uses three docker images, Kakfa, Zookeeper and Ruby. Zookeeper is needed as 
@@ -84,10 +83,10 @@ for our application which is built by the provided =Dockerfile=. These images ar
 and are downloaded and built automatically by the above command on the first time.
 
 These images are configured and run using =docker-compose=. The configuration is in the =docker-compose.yml= file.
-The main ports of Zookeeper and Kafka are exposed to the host OS and containers are linked. The application is accessible
-on port 8080 from the host OS.
+The main ports of Zookeeper and Kafka are exposed to the host OS and containers are linked. The application is accessible on port 8080 from the host OS.
+
 * Issues
-When running the app for the second time, first stop and remove the containers using below command, then start normally as above. Otherwise Kafka and Zookeeper fail to communicate.
+Each time before running the app, first stop and remove the containers using below command, then start normally as above. Otherwise Kafka and Zookeeper fail to communicate.
 
 #+BEGIN_SRC sh
 $ docker-compose stop
