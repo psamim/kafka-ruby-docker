@@ -9,12 +9,13 @@ The whole environment and application is packaged into Docker containers.
 * Requirements
 - docker
 - docker-compose
-* Installation
+
+* Installing and Running
 #+BEGIN_SRC sh
 $ docker-compose up
 #+END_SRC
 
-This may take a long time as it downloads Kafka, Zookeeper and Ruby images and builds the application.
+The first time, this may take a long time as it downloads Kafka, Zookeeper and Ruby images and builds the application.
 
 * Description
 When the app starts, it consists of four separate units, besides Zookeeper and Kafka. Each unit is a 
